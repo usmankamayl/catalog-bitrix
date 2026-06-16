@@ -1,0 +1,79 @@
+/* =============================================
+   АвтоЗапчасти — Каталог
+   ============================================= */
+
+/* Карточка товара */
+.ap-card {
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+    border: 1px solid #e0e0e0;
+}
+.ap-card:hover {
+    box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+    transform: translateY(-2px);
+}
+
+.ap-card__img-wrap {
+    display: block;
+    overflow: hidden;
+}
+.ap-card__img {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+.ap-card__img-wrap:hover .ap-card__img {
+    transform: scale(1.04);
+}
+.ap-card__no-img {
+    height: 180px;
+}
+
+.ap-card__brand {
+    font-size: 0.7rem;
+    width: fit-content;
+}
+.ap-card__name {
+    font-size: 0.95rem;
+    line-height: 1.4;
+}
+.ap-card__price {
+    color: #0d6efd;
+}
+
+/* Фильтр */
+.ap-filter {
+    position: sticky;
+    top: 20px;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+}
+.ap-filter__title {
+    font-size: 1rem;
+    font-weight: 600;
+    border-bottom: 2px solid #0d6efd;
+    padding-bottom: 8px;
+}
+
+/* Лоадер */
+.ap-catalog__loader {
+    min-height: 200px;
+}
+
+/* Адаптив */
+@media (max-width: 991px) {
+    .ap-filter {
+        position: static;
+        margin-bottom: 1.5rem;
+    }
+}
+
+@media (max-width: 575px) {
+    .ap-card__img,
+    .ap-card__no-img {
+        height: 150px;
+    }
+    .ap-card__price {
+        font-size: 1.1rem !important;
+    }
+}
