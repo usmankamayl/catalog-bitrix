@@ -298,6 +298,52 @@ https://dev-wordpress.kamaylaev.ru/run_import.php
 
 ---
 
+---
+
+## Задание 3 — REST API для мобильного приложения
+
+Полная документация со всеми эндпоинтами, форматом ошибок и примерами `curl` — в файле **[API.md](./API.md)**.
+
+### Краткий обзор
+
+Собственная реализация REST API (без штатного `bitrix:rest`):
+
+| Метод | URL | Назначение | Авторизация |
+|-------|-----|------------|-------------|
+| POST | `/api/v1/auth/token` | Получение Bearer-токена по логину/паролю | не требуется |
+| GET | `/api/v1/catalog/list` | Список товаров (пагинация, фильтр по бренду) | не требуется |
+| GET | `/api/v1/catalog/{id}` | Детальная информация по товару | не требуется |
+| POST | `/api/v1/order/create` | Создание заказа через `Bitrix\Sale\Order` | требуется |
+
+### Структура
+
+```
+api/v1/
+├── index.php          # роутер
+└── .htaccess           # маршрутизация запросов
+
+local/php_interface/
+├── init.php            # автозагрузка классов API
+└── api/
+    ├── ApiResponse.php
+    ├── ApiToken.php
+    └── Controllers/
+        ├── AuthController.php
+        ├── CatalogController.php
+        └── OrderController.php
+```
+
+### Токены
+
+Bearer-токены живут 24 часа, хранятся в собственной таблице `autoparts_api_token` (создаётся автоматически при первом обращении к API).
+
+### Формат ответа
+
+```json
+{"success": true, "data": {...}}
+{"success": false, "error": {"code": "...", "message": "..."}}
+```
+
 ## Контакты
 
 - Portfolio: [portfolio.kamaylaev.ru](https://portfolio.kamaylaev.ru)

@@ -1,0 +1,10 @@
+RewriteEngine On
+
+# Проброс заголовка Authorization — на некоторых хостингах
+# CGI/PHP-FPM не передаёт его в $_SERVER по умолчанию.
+RewriteCond %{HTTP:Authorization} ^(.*)
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%1]
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php [L,QSA]
