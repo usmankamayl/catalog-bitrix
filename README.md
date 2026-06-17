@@ -1,19 +1,24 @@
-# АвтоЗапчасти — тестовое задание (Задание 1)
+# АвтоЗапчасти — тестовое задание (1С-Битрикс)
 
-Каталог автозапчастей на базе **1С-Битрикс: Управление сайтом** (редакция «Стандарт» и выше).
+Интернет-магазин автозапчастей: каталог товаров, импорт из 1С, REST API для мобильного приложения. Реализовано на чистой редакции **1С-Битрикс: Управление сайтом** (Стандарт/Малый бизнес).
+
+📄 Архитектурные решения и обоснования — в файле **[ARCHITECTURE.md](./ARCHITECTURE.md)**
+📄 Документация REST API с примерами curl — в файле **[API.md](./API.md)**
 
 ---
 
-## Демо
+## Демо и доступы
 
 - 🌐 Сайт: [dev-wordpress.kamaylaev.ru](http://dev-wordpress.kamaylaev.ru)
-- 📦 Каталог автозапчастей: [dev-wordpress.kamaylaev.ru/autopats.php](http://dev-wordpress.kamaylaev.ru/autopats.php)
-- 🔧 Запуск импорта из 1С: [dev-wordpress.kamaylaev.ru/run_import.php](http://dev-wordpress.kamaylaev.ru/run_import.php) *(требуется авторизация как администратор)*
+- 📦 Каталог автозапчастей: [dev-wordpress.kamaylaev.ru/autoparts.php](http://dev-wordpress.kamaylaev.ru/autoparts.php)
+- 🔧 Запуск импорта из 1С: [dev-wordpress.kamaylaev.ru/run_import.php](http://dev-wordpress.kamaylaev.ru/run_import.php) *(требуется авторизация как администратор Битрикса)*
+- 🔌 REST API: `http://dev-wordpress.kamaylaev.ru/api/v1` *(см. [API.md](./API.md))*
+
+Тестовые учётные данные для входа в админку и проверки API передаются отдельно вместе с ответом на тестовое задание (не публикуются в репозитории из соображений безопасности).
 
 ---
 
-
-
+## Стек
 - PHP 8.1+
 - 1С-Битрикс (модуль `iblock`)
 - Bootstrap 5.3
@@ -23,28 +28,47 @@
 
 ---
 
-## Структура репозитория
+## Задание 1 — Каталог товаров и шаблон
+
+### Структура репозитория (общая, все задания)
 
 ```
-├── local/
-│   └── components/
-│       └── autoparts/
-│           ├── catalog/                  # Компонент списка товаров
-│           │   ├── class.php             # Логика: фильтр, выборка, кэш
-│           │   └── templates/.default/
-│           │       ├── template.php      # HTML-шаблон каталога
-│           │       ├── style.css         # Стили
-│           │       └── script.js         # AJAX-фильтр
-│           └── catalog.detail/           # Компонент детальной страницы
-│               ├── class.php             # Логика: товар, похожие
-│               └── templates/.default/
-│                   ├── template.php      # HTML-шаблон детальной
-│                   ├── style.css         # Стили
-│                   └── script.js         # Инициализация Swiper
+├── README.md
+├── ARCHITECTURE.md             # обоснование архитектурных решений
+├── API.md                      # документация REST API
+├── autoparts.php                # страница каталога
+├── autoparts_detail.php         # детальная страница товара
+├── run_import.php               # запуск импорта 1С через браузер (только для админа)
+├── api/v1/                      # REST API (Задание 3)
+│   ├── index.php
+│   └── .htaccess
 ├── install/
-│   └── demo_data.php                     # Скрипт наполнения демо-данными
-├── autoparts.php                         # Страница каталога
-└── autoparts_detail.php                  # Страница детального просмотра
+│   └── demo_data.php            # скрипт наполнения демо-данными
+├── local/
+│   ├── components/autoparts/
+│   │   ├── catalog/                  # Компонент списка товаров
+│   │   │   ├── class.php             # Логика: фильтр, выборка, кэш
+│   │   │   └── templates/.default/
+│   │   │       ├── template.php      # HTML-шаблон каталога
+│   │   │       ├── style.css         # Стили
+│   │   │       └── script.js         # AJAX-фильтр
+│   │   └── catalog.detail/           # Компонент детальной страницы
+│   │       ├── class.php             # Логика: товар, похожие
+│   │       └── templates/.default/
+│   │           ├── template.php      # HTML-шаблон детальной
+│   │           ├── style.css         # Стили
+│   │           └── script.js         # Инициализация Swiper
+│   └── php_interface/
+│       ├── init.php             # автозагрузка классов API
+│       ├── cron/
+│       │   └── import_1c.php    # скрипт импорта из 1С (Задание 2)
+│       └── api/                 # классы REST API (Задание 3)
+│           ├── ApiResponse.php
+│           ├── ApiToken.php
+│           └── Controllers/
+└── upload/1c_import/
+    ├── import.xml                # тестовый XML CommerceML 2 (20 товаров)
+    └── logs/                      # логи импорта (создаются автоматически)
 ```
 
 ---
@@ -64,9 +88,12 @@
 
 ```bash
 cp -r local/ /var/www/html/
-cp autoparts.php /var/www/html/
-cp autoparts_detail.php /var/www/html/
+cp -r api/ /var/www/html/
+cp -r upload/ /var/www/html/
+cp autoparts.php autoparts_detail.php run_import.php /var/www/html/
 ```
+
+Если в `local/php_interface/` уже есть свой `init.php` — не перезаписывай его, а перенеси блок `Loader::registerAutoLoadClasses(...)` из репозитория в конец существующего файла (нужен для автозагрузки классов REST API).
 
 ### 3. Создание инфоблоков в админке
 
@@ -144,10 +171,24 @@ https://ваш-сайт/demo_data.php
 
 **После выполнения удалить файл с сервера.**
 
-### 6. Проверка
+### 6. Проверка каталога
 
 - Каталог: `https://ваш-сайт/autoparts.php`
 - Детальная страница: `https://ваш-сайт/autoparts_detail.php?ID=<ID_товара>`
+
+### 7. Проверка REST API
+
+Таблица токенов `autoparts_api_token` создаётся автоматически при первом запросе — никаких дополнительных миграций не требуется.
+
+Быстрая проверка через curl (подробности и больше примеров — в [API.md](./API.md)):
+
+```bash
+curl -X POST https://ваш-сайт/api/v1/auth/token \
+  -H "Content-Type: application/json" \
+  -d '{"login": "admin", "password": "ваш_пароль"}'
+```
+
+В ответ должен прийти JSON с полем `token` — значит роутер и авторизация настроены верно.
 
 ---
 
@@ -208,8 +249,6 @@ URL обновляется через `history.pushState` — фильтр мо�
 - Артикул, цена, наличие, описание, совместимость с моделями авто
 - Блок «Похожие товары» — 3-6 товаров того же бренда
 - Хлебные крошки
-
----
 
 ---
 
@@ -295,8 +334,6 @@ https://dev-wordpress.kamaylaev.ru/run_import.php
 - `CIBlockElement::Add` — создание новых товаров
 - `CIBlockElement::Update` — обновление и деактивация
 - `Bitrix\Iblock\ElementTable` (D7) — чтение списка элементов без свойств (быстрее для больших объёмов)
-
----
 
 ---
 
