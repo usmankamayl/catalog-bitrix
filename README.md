@@ -383,6 +383,5 @@ Bearer-токены живут 24 часа, хранятся в собствен
 
 ## Контакты
 
-- Portfolio: [portfolio.kamaylaev.ru](https://portfolio.kamaylaev.ru)
 - GitHub: [github.com/usmankamayl](https://github.com/usmankamayl)
 - Telegram: [@usman_kamayl](https://t.me/usman_kamayl)
